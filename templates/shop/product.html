@@ -1,0 +1,63 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}{{ product.name_en }} — {{ store.brand_name }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'home' %}">Home</a><span>/</span><span>{{ product.name_en }}</span></div>
+<section class="product-detail">
+  <div class="gallery">
+    <div class="slider-shell">
+      <div class="product-slider" aria-label="{{ product.name_en }} images">
+        <div class="slider-track">
+          <figure class="slide"><img src="{{ product.main_image.url }}" alt="{{ product.name_en }}" draggable="false"></figure>
+          {% for photo in product.images.all %}<figure class="slide"><img src="{{ photo.image.url }}" alt="{{ photo.alt_text|default:product.name_en }}" draggable="false"></figure>{% endfor %}
+        </div>
+      </div>
+      {% if product.images.exists %}<button class="slider-arrow slider-prev" type="button" aria-label="Previous image">‹</button><button class="slider-arrow slider-next" type="button" aria-label="Next image">›</button>{% endif %}
+    </div>
+    <a class="button order-now" href="#checkout">Order now <span>↓</span></a>
+    {% if product.images.exists %}<p class="swipe-note">Swipe to view product photos</p>{% endif %}
+  </div>
+  <div class="product-info">
+    <p class="eyebrow">E FIVE · HAIR CARE</p><h1>{{ product.name_en }}</h1>
+    <p class="product-subtitle">{{ product.subtitle_en }}</p><div class="product-price">{{ product.price }} <small>DA</small></div>
+    <p class="description">{{ product.description_en }}</p>
+    <ul class="benefit-list">{% for benefit in product.benefits_en.splitlines %}<li><span>✓</span>{{ benefit }}</li>{% endfor %}</ul>
+    <div class="usage"><strong>How to use</strong><p>{{ product.usage_en }}</p></div>
+  </div>
+</section>
+<section class="order-section" id="checkout">
+  <div class="order-intro"><p class="eyebrow">CASH ON DELIVERY</p><h2>Complete your order</h2><p>We will confirm your order by phone before shipping.</p></div>
+  <div class="checkout-layout">
+    <form method="post" class="order-form" novalidate data-product-price="{{ product.price }}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-alert">{{ form.non_field_errors }}</div>{% endif %}
+      {% if delivery_error %}<div class="form-alert">{{ delivery_error }}</div>{% endif %}
+      <div class="form-section-title"><span>01</span><div><h3>Your details</h3><p>So we can confirm your order</p></div></div>
+      <div class="field-row">
+        <label>Full name{{ form.full_name }}{{ form.full_name.errors }}</label>
+        <label>Phone number{{ form.phone }}{{ form.phone.errors }}</label>
+      </div>
+      <div class="form-section-title spaced"><span>02</span><div><h3>Delivery address</h3><p>Where should we deliver?</p></div></div>
+      {{ form.wilaya_id }}{{ form.commune_id }}{{ form.hub_id }}
+      <div class="field-row">
+        <label>Wilaya<select id="wilaya-select" required><option value="">Choose your wilaya</option></select>{{ form.wilaya_id.errors }}</label>
+        <label>Commune<select id="commune-select" required disabled><option value="">Choose your commune</option></select>{{ form.commune_id.errors }}</label>
+      </div>
+      <label>Full address{{ form.address }}{{ form.address.errors }}</label>
+      <div class="form-section-title spaced"><span>03</span><div><h3>Delivery type</h3><p>Select the option that suits you</p></div></div>
+      <div class="delivery-options">
+        <label class="delivery-card"><input type="radio" name="delivery_type" value="home" {% if form.delivery_type.value != 'pickup-point' %}checked{% endif %}><span class="delivery-icon">⌂</span><span><b>Home delivery</b><small>Delivered to your address</small></span><strong data-rate="home">—</strong></label>
+        <label class="delivery-card"><input type="radio" name="delivery_type" value="pickup-point" {% if form.delivery_type.value == 'pickup-point' %}checked{% endif %}><span class="delivery-icon">⌖</span><span><b>Pickup point</b><small>Collect near you</small></span><strong data-rate="pickup-point">—</strong></label>
+      </div>
+      {{ form.delivery_type.errors }}
+      <label id="pickup-hub-field" hidden>Pickup point<select id="pickup-hub-select"><option value="">Choose a pickup point</option></select>{{ form.hub_id.errors }}</label>
+      <button class="button full order-submit" type="submit" {% if delivery_error %}disabled{% endif %}>Confirm order <span>→</span></button>
+      <p class="privacy">🔒 Your details are private and secure.</p>
+    </form>
+    <aside class="order-summary"><h3>Your order</h3><div class="summary-product"><img src="{{ product.main_image.url }}" alt="{{ product.name_en }}"><div><strong>{{ product.name_en }}</strong><small>{{ product.subtitle_en }}</small><b>{{ product.price }} DA</b></div></div><div class="summary-lines"><p><span>Product</span><b>{{ product.price }} DA</b></p><p><span>Delivery</span><b id="delivery-price">Calculate</b></p></div><div class="summary-total"><span>Total to pay</span><strong id="total-price">{{ product.price }} DA</strong></div></aside>
+  </div>
+</section>
+<script id="delivery-data" type="application/json">{{ delivery_data_json|safe }}</script>
+<script src="{% static 'js/product-slider.js' %}"></script>
+<script src="{% static 'js/checkout.js' %}"></script>
+{% endblock %}

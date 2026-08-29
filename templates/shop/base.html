@@ -1,0 +1,26 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}{{ store.brand_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mobile-product.css' %}">
+  {% if tracking_pixels.enabled %}
+    {% if tracking_pixels.facebook_pixel_code %}{{ tracking_pixels.facebook_pixel_code|safe }}{% endif %}
+    {% if tracking_pixels.tiktok_pixel_code %}{{ tracking_pixels.tiktok_pixel_code|safe }}{% endif %}
+  {% endif %}
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'home' %}">
+      {% if store.logo %}<img src="{{ store.logo.url }}" alt="{{ store.brand_name }}">{% else %}<img src="{% static 'images/logo.jpg' %}" alt="{{ store.brand_name }}">{% endif %}
+    </a>
+    <div class="header-note"><span></span>{{ store.announcement_en }}</div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer><p>{{ store.brand_name }} · Your style, your way.</p><small>© 2026 · Algeria</small></footer>
+</body>
+</html>

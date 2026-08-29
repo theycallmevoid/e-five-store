@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: e-five-store
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn efive.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
